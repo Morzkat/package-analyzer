@@ -1,0 +1,5 @@
+node_modules/
+_tests_/
+pnpm-lock.yaml
+dist/
+.env
