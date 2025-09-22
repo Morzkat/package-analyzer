@@ -3,3 +3,4 @@ _tests_/
 pnpm-lock.yaml
 dist/
 .env
+uploads/

@@ -1,5 +1,6 @@
 import packagesService from './../services/packages.service';
 import { Request, Response, NextFunction } from 'express';
+import { JsonPackage } from '../models/jsonPackage.model';
 
 export const healthCheck = (req: Request, res: Response) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
@@ -25,26 +26,25 @@ export const getPackageSize = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-const upload = multer({ dest: 'uploads/' }); // Temporary upload folder
-
 export const analyzePackageFile = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
-    // // Placeholder for actual file analysis logic
-    // const analysisResult = {
-    //   filename: req.file.originalname,
-    //   size: req.file.size,
-    //   mimetype: req.file.mimetype,
-    //   // Add more analysis details here
-    // };
-    res.status(200).json({ message: 'File analysis endpoint is under construction.' });
+    const content = req.file.buffer.toString('utf-8');
+    const data: JsonPackage = JSON.parse(content);
+
+    const dependencies = await packagesService.analyzeDependencies(data.dependencies || {});
+    const devDependencies = await packagesService.analyzeDependencies(data.devDependencies || {});
+
+    const response = {
+      dependencies,
+      devDependencies,
+    };
+
+    res.status(200).json(response);
   } catch (error: unknown) {
     next(error);
   }
 };
-function multer(arg0: { dest: string }) {
-  // throw new Error('Function not implemented.');
-}

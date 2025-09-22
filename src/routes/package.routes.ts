@@ -5,6 +5,7 @@ import {
   analyzePackageFile,
   healthCheck,
 } from '../controllers/package.controller';
+import multer from 'multer';
 
 const router: Router = express.Router();
 
@@ -96,6 +97,11 @@ router.get('/info/:name', getPackageInfo);
  */
 router.get('/size/:name/:version', getPackageSize);
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+});
+
 /**
  * @openapi
  * /api/packages/analyze:
@@ -127,6 +133,6 @@ router.get('/size/:name/:version', getPackageSize);
  *       400:
  *         description: No file provided
  */
-router.post('/analyze', analyzePackageFile);
+router.post('/analyze', upload.single('file'), analyzePackageFile);
 
 export default router;
